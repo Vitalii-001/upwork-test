@@ -1,0 +1,17 @@
+.navbar-static-top {
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    position: fixed;
+    width: 100%;
+}
+.navbar-static-top + .container {
+    padding-top: 60px;
+    padding-bottom: 80px;
+}
+.max-h-130 {
+    max-height: 132px;
+    overflow: auto;
+}
+.create-invoice-popup.modal {
+    width: 700px;
+}

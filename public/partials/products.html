@@ -1,0 +1,23 @@
+<div class="well">
+    <h3>Products</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Remove</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="product in productsList track by $index">
+            <td>{{product.name}}</td>
+            <td>{{product.price}}</td>
+            <td><button type="button" class="btn btn-danger" ng-click="delete(product.id)">x</button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="col-lg-3 col-lg-offset-3 text-right">
+    <button type="button" class="btn btn-large btn-default" ng-click="create()">Create Product!
+    </button>
+</div>
