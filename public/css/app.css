@@ -9,9 +9,19 @@
     padding-bottom: 80px;
 }
 .max-h-130 {
-    max-height: 132px;
+    max-height: 232px;
     overflow: auto;
 }
-.create-invoice-popup.modal {
+.create-invoice-popup.modal,
+.edit-invoice-popup.modal {
     width: 700px;
+    margin-top: 0;
+}
+.create-invoice-popup.modal.fade.in,
+.edit-invoice-popup.modal.fade.in{
+    top: 10%;
+}
+.create-invoice-popup.modal .modal-body,
+.edit-invoice-popup.modal .modal-body{
+    max-height: 500px;
 }

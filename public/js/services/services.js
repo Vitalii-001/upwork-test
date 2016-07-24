@@ -134,6 +134,33 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
+    invoice.addInvoiceItems = function(invoiceItems){
+        angular.forEach(invoiceItems, function(invoiceItem){
+                    console.log(invoiceItem)
+            var defer = $q.defer();
+            $http.post($rootScope.endPoint + '/api/invoices/' + invoiceItem.invoice_id + '/items', invoiceItem)
+                .success(function(response){
+                    defer.resolve(response)
+                })
+                .error(function(err, status){
+                    defer.reject(err);
+                })
+            return defer.promise;
+        })
+    }
+    invoice.getInvoiceItems = function(invoice_id){
+        var defer = $q.defer();
+        $http.get($rootScope.endPoint + '/api/invoices/' + invoice_id + '/items')
+            .success(function(response){
+                invoice.invoiceProducts = response;
+                defer.resolve(response)
+                console.log(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
+    }
     invoice.deleteInvoice = function(id){
         var defer = $q.defer();
         $http.delete($rootScope.endPoint + '/api/invoices/' + id)
@@ -144,5 +171,8 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
                 defer.reject(err);
             })
         return defer.promise;
+    }
+    invoice.editInvoice = function(id){
+        
     }
 });

@@ -3,18 +3,31 @@
     <table class="table table-bordered table-striped">
         <thead>
         <tr>
+            <th>Id</th>
             <th>Customer</th>
-            <th>Discount</th>
+            <th>Discount, %</th>
+            <th>Products</th>
             <th>Total</th>
             <th>Remove</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="invoice in invoicesList track by $index">
+        <tr ng-repeat="invoice in invoicesList track by $index" ng-controller="getInvoiceId">
+            <td>{{invoice.id}}</td>
             <td>{{invoice.customer_id}}</td>
             <td>{{invoice.discount}}</td>
-            <td>{{invoice.total}}</td>
-            <td><button type="button" class="btn btn-danger" ng-click="delete(invoice.id)">x</button></td>
+            <td>
+                <ul>
+                    <li ng-repeat="invoiceProduct in invoiceProducts">
+                        {{invoiceProduct.product_id}}
+                    </li>
+                </ul>
+            </td>
+            <td>{{invoice.total | number:2}}</td>
+            <td>
+                <button type="button" class="btn btn-danger" ng-click="delete(invoice.id)">x</button>
+                <button type="button" class="btn btn-default" ng-click="edit(invoice)">edit</button>
+            </td>
         </tr>
         </tbody>
     </table>
