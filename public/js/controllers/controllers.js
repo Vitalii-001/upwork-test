@@ -323,6 +323,20 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
 INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, $modal, invoiceEdit){
     // $scope.input = angular.copy(invoiceEdit);
     console.log(invoiceEdit);
+    $scope.init = function(){
+        $scope.getCustomersList();
+    }
+        $scope.invoice = invoiceEdit;
+    // $scope.invoice.discount = invoiceEdit.discount;
+    console.log($scope.invoice)
+    $scope.getCustomersList = function(){
+        invoice.getAllCustomers()
+            .then(function(){
+                $scope.customersList = invoice.customersList;
+            }, function(){
+
+            })
+    }
     $scope.invoiceEdit = invoiceEdit;
     $scope.submit = function(){
         $modalInstance.close($scope.input);
@@ -330,6 +344,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     $scope.close = function(){
         $modalInstance.dismiss('close');
     }
+    $scope.init();
 
 });
 
