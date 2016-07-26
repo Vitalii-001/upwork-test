@@ -136,7 +136,6 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
     }
     invoice.addInvoiceItems = function(invoiceItems){
         angular.forEach(invoiceItems, function(invoiceItem){
-                    console.log(invoiceItem)
             var defer = $q.defer();
             $http.post($rootScope.endPoint + '/api/invoices/' + invoiceItem.invoice_id + '/items', invoiceItem)
                 .success(function(response){
@@ -154,7 +153,6 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             .success(function(response){
                 invoice.invoiceProducts = response;
                 defer.resolve(response)
-                console.log(response)
             })
             .error(function(err, status){
                 defer.reject(err);

@@ -17,9 +17,9 @@
             <td>{{invoice.customer_id}}</td>
             <td>{{invoice.discount}}</td>
             <td>
-                <ul>
-                    <li ng-repeat="invoiceProduct in invoiceProducts">
-                        {{invoiceProduct.product_id}}
+                <ul style="list-style: decimal;">
+                    <li ng-repeat="invoiceProduct in invoiceProductsName">
+                        {{invoiceProduct}}
                     </li>
                 </ul>
             </td>

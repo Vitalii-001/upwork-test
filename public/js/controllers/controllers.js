@@ -167,7 +167,6 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
     }
     $scope.edit = function(invoiceEdit){
         var invoiceToEdit = invoiceEdit;
-        console.log(invoiceToEdit);
         var modalInstance = $modal.open({
             templateUrl: '/partials/edit-invoice.html',
             windowClass: 'edit-invoice-popup',
@@ -208,11 +207,19 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
 });
 
 INVOISE.controller('getInvoiceId', function($scope, invoice){
+    $scope.invoiceProductsName = [];
     var invoiceId = $scope.invoice.id;
     invoice.getInvoiceItems(invoiceId)
         .then(function(data){
-            console.log(data)
             $scope.invoiceProducts = invoice.invoiceProducts;
+            angular.forEach($scope.invoiceProducts, function(invoiceItem){
+                $scope.productsList.filter(function(item){
+                    if (item.id === invoiceItem.product_id) {
+                        $scope.invoiceProductsName.push(item.name);
+                        return item.name;
+                    }
+                })
+            })
         });
 });
 
@@ -322,13 +329,11 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
 });
 INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, $modal, invoiceEdit){
     // $scope.input = angular.copy(invoiceEdit);
-    console.log(invoiceEdit);
     $scope.init = function(){
         $scope.getCustomersList();
     }
         $scope.invoice = invoiceEdit;
     // $scope.invoice.discount = invoiceEdit.discount;
-    console.log($scope.invoice)
     $scope.getCustomersList = function(){
         invoice.getAllCustomers()
             .then(function(){
