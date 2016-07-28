@@ -37,14 +37,15 @@
                         <td>{{product.name}}</td>
                         <td>{{product.price}}</td>
                         <td>
-                            <button type="button" class="btn btn-success" ng-click="addInvoiceItem(product)">+</button>
+                            <button type="button" class="btn btn-success" ng-click="addInvoiceItem(product, invoice)">+</button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div ng-show="invoice.ProductsInCart.length" style="width: 49%; float: left; margin-left: 30px;">
+        <!--ng-show="invoice.ProductsInCart.length"-->
+        <div  style="width: 49%; float: left; margin-left: 30px;">
             <h4>Products in cart</h4>
             <div class="form-group max-h-130">
                 <table class="table table-bordered table-striped">
@@ -62,7 +63,7 @@
                         <td>{{product.price}}</td>
                         <td><input style="width: 40px;" type="number" ng-model="product.quantity" /></td>
                         <td>
-                            <button type="button" class="btn btn-danger" ng-click="removeInvoiceItem($index, product.price)">x</button>
+                            <button type="button" class="btn btn-danger" ng-click="removeInvoiceItem($index, product.price, invoice.id, product.id)">x</button>
                         </td>
                     </tr>
                     </tbody>

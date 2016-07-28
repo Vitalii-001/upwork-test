@@ -159,22 +159,41 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
-    invoice.editInvoiceItems = function(invoiceId, invoiceItemsInCart){
-     var defer = $q.defer();
-     var updateInvoiceItems = [];
-        angular.forEach(invoiceItemsInCart, function(invoiceItem){
-            $http.put($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + invoiceItem.id, invoiceItem)
-                .success(function(response){
-                     updateInvoiceItems.push(response)
-                     invoice.updateInvoiceItems = updateInvoiceItems;
-                    defer.resolve(response)
-                })
-                .error(function(err, status){
-                    defer.reject(err);
-                })
-          })
+    invoice.editInvoiceItems = function(invoiceId, invoiceItemInCart){
+        var defer = $q.defer();
+        $http.put($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + invoiceItemInCart.id, invoiceItemInCart)
+            .success(function(response){
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
+    }
+    invoice.deleteInvoiceItem = function(productId, invoiceId){
+        var defer = $q.defer();
+        $http.delete($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + productId)
+            .success(function(response){
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
 
-         return defer.promise;
+        return defer.promise;
+    }
+    invoice.postInvoiceItem = function(invoiceItem, invoice){
+        var defer = $q.defer();
+        $http.post($rootScope.endPoint + '/api/invoices/' + invoice.id + '/items')
+            .success(function(response){
+                invoice.invoiceItems = response;
+        console.log(response)
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
     }
     invoice.deleteInvoice = function(id){
         var defer = $q.defer();
