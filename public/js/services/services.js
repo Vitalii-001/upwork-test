@@ -159,6 +159,23 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
+    invoice.editInvoiceItems = function(invoiceId, invoiceItemsInCart){
+     var defer = $q.defer();
+     var updateInvoiceItems = [];
+        angular.forEach(invoiceItemsInCart, function(invoiceItem){
+            $http.put($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + invoiceItem.id, invoiceItem)
+                .success(function(response){
+                     updateInvoiceItems.push(response)
+                     invoice.updateInvoiceItems = updateInvoiceItems;
+                    defer.resolve(response)
+                })
+                .error(function(err, status){
+                    defer.reject(err);
+                })
+          })
+
+         return defer.promise;
+    }
     invoice.deleteInvoice = function(id){
         var defer = $q.defer();
         $http.delete($rootScope.endPoint + '/api/invoices/' + id)
@@ -170,7 +187,15 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
-    invoice.editInvoice = function(id){
-        
+    invoice.editInvoice = function(id, updateInvoice){
+        var defer = $q.defer();
+        $http.put($rootScope.endPoint + '/api/invoices/' + id, updateInvoice)
+            .success(function(response){
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
     }
 });
