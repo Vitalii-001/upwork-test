@@ -12,21 +12,21 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="invoice in invoicesList track by $index" ng-controller="getInvoiceId">
+        <tr ng-repeat="invoice in invoicesList track by $index" ng-controller="getInvoiceItems">
             <td>{{invoice.id}}</td>
             <td>{{invoice.customer_id}}</td>
             <td>{{invoice.discount}}</td>
             <td>
-                <ul style="list-style: decimal;">
-                    <li ng-repeat="invoiceProduct in invoiceProductsName">
-                        {{invoiceProduct}}
+                <ul style="list-style: inherit;">
+                    <li ng-repeat="invoiceProduct in invoiceProductsName track by $index">
+                        {{invoiceProduct}} amount
                     </li>
                 </ul>
             </td>
             <td>{{invoice.total | number:2}}</td>
             <td>
                 <button type="button" class="btn btn-danger" ng-click="delete(invoice.id)">x</button>
-                <button type="button" class="btn btn-default" ng-click="edit(invoice)">edit</button>
+                <button type="button" class="btn btn-default" ng-click="edit(invoice, invoiceProductsInCart)">edit</button>
             </td>
         </tr>
         </tbody>

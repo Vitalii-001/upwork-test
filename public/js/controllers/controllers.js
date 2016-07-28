@@ -165,7 +165,8 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
 
             })
     }
-    $scope.edit = function(invoiceEdit){
+    $scope.edit = function(invoiceEdit, invoiceProductsInCart){
+        invoiceEdit.ProductsInCart = invoiceProductsInCart;
         var invoiceToEdit = invoiceEdit;
         var modalInstance = $modal.open({
             templateUrl: '/partials/edit-invoice.html',
@@ -183,14 +184,16 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
             invoiceToEdit.customer = selectedItem.customer;
             invoiceToEdit.discount = selectedItem.discount;
             invoiceToEdit.total = selectedItem.total;
+            invoiceToEdit.productsInCart = selectedItem.ProductsInCart;
             $scope.getAll();
         }, function(){
             $scope.getAll();
-        })
+        });
     }
     $scope.getAll = function(){
         invoice.getAllInvoices().then(function(){
             $scope.invoicesList = invoice.list;
+
         }, function(){
 
         })
@@ -206,17 +209,18 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
     $scope.init()
 });
 
-INVOISE.controller('getInvoiceId', function($scope, invoice){
+INVOISE.controller('getInvoiceItems', function($scope, invoice){
     $scope.invoiceProductsName = [];
     var invoiceId = $scope.invoice.id;
     invoice.getInvoiceItems(invoiceId)
         .then(function(data){
             $scope.invoiceProducts = invoice.invoiceProducts;
+            $scope.invoiceProductsInCart = invoice.invoiceProducts;
             angular.forEach($scope.invoiceProducts, function(invoiceItem){
                 $scope.productsList.filter(function(item){
-                    if (item.id === invoiceItem.product_id) {
-                        $scope.invoiceProductsName.push(item.name);
-                        return item.name;
+                    if(item.id === invoiceItem.product_id){
+                        $scope.invoiceProductsName.push(item.name + " | " + invoiceItem.quantity);
+                        return $scope.invoiceProductsName;
                     }
                 })
             })
@@ -233,11 +237,11 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
         }
 
         $scope.invoice = new Invoice();
-        $scope.invoicesInCart = [];
+        $scope.invoicesInCart = []; //+
         $scope.compareAddItems = [];
-        $scope.invoiceItems = [];
-        $scope.invoice.total = 0;
-        $scope.invoice.totalPriceWithoutDiscount = 0;
+        $scope.invoiceItems = []; //+
+        $scope.invoice.total = 0; //+
+        $scope.invoice.totalPriceWithoutDiscount = 0; //+
         $scope.getCustomersList();
         $scope.getProductsList();
     }
@@ -310,11 +314,8 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
                     invoiceItem.invoice_id = response.id;
                     $scope.invoiceItems.push(invoiceItem)
                 });
-                invoice.addInvoiceItems($scope.invoiceItems)
+                invoice.addInvoiceItems($scope.invoiceItems);
                 $modalInstance.close($scope.input);
-                // $scope.customer = '';
-                // $scope.discount = '';
-                // $scope.total = '';
             }, function(){
                 $scope.invoice = {
                     name: 'Failed',
@@ -327,29 +328,106 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
     }
     $scope.init();
 });
-INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, $modal, invoiceEdit){
-    // $scope.input = angular.copy(invoiceEdit);
+INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, invoiceEdit, $modal){
+    $scope.invoice = invoiceEdit;
+    console.log(invoiceEdit)
+    $scope.invoiceItems = [];
+    $scope.invoicesInCart = [];
+    $scope.compareAddItems = [];
+    var totalPriceWithoutDiscountArr = [];
     $scope.init = function(){
         $scope.getCustomersList();
     }
-        $scope.invoice = invoiceEdit;
-    // $scope.invoice.discount = invoiceEdit.discount;
     $scope.getCustomersList = function(){
         invoice.getAllCustomers()
             .then(function(){
                 $scope.customersList = invoice.customersList;
-            }, function(){
-
             })
     }
-    $scope.invoiceEdit = invoiceEdit;
+    angular.forEach(invoiceEdit.ProductsInCart, function(invoiceItemInCart){
+        $scope.productsList.filter(function(item){
+            if(item.id === invoiceItemInCart.product_id){
+                invoiceItemInCart.price = item.price;
+                invoiceItemInCart.name = item.name;
+                $scope.invoicesInCart.push({
+                    name: invoiceItemInCart.name,
+                    price: invoiceItemInCart.price,
+                    quantity: invoiceItemInCart.quantity
+                });
+                totalPriceWithoutDiscountArr.push(invoiceItemInCart.price * invoiceItemInCart.quantity);
+                $scope.compareAddItems.push(invoiceItemInCart.product_id);
+                // $scope.invoicesInCart.push(invoiceItemInCart);
+            }
+        })
+    });
+    $scope.invoice.totalPriceWithoutDiscount = totalPriceWithoutDiscountArr.reduce(function(sum, current){
+        return sum + current;
+    }, 0);
+    $scope.invoice.total = $scope.invoice.totalPriceWithoutDiscount;
+    if($scope.invoice.discount !== ''){
+        $scope.invoice.total = $scope.invoice.totalPriceWithoutDiscount - ($scope.invoice.totalPriceWithoutDiscount * $scope.invoice.discount / 100);
+    }
+    $scope.$watch('invoice.discount', function(newV, oldV){
+        $scope.invoice.total = $scope.invoice.totalPriceWithoutDiscount - ($scope.invoice.totalPriceWithoutDiscount * newV / 100);
+        if(newV === ''){
+            $scope.invoice.total = $scope.invoice.totalPriceWithoutDiscount;
+        }
+    });
+    $scope.addInvoiceItem = function(product){
+        console.log(product)
+        if($scope.compareAddItems.indexOf(product.id) != -1){
+            $modal.open({
+                templateUrl: '/partials/already-exists.html',
+                controller: 'CreateInvoiceCtrl'
+            });
+            return false;
+        }
+        $scope.compareAddItems.push(product.id);
+        $scope.invoicesInCart.push(product);
+    }
+    console.log( $scope.invoicesInCart)
+    $scope.$watch('invoicesInCart', function(watchProducts){
+        var allPricesInElements = [];
+        angular.forEach(watchProducts, function(val){
+        console.log(val)
+            allPricesInElements.push(val.quantity * val.price)
+        })
+        $scope.invoice.total = allPricesInElements.reduce(function(sum, current){
+            return sum + current;
+        }, 0);
+        $scope.invoice.totalPriceWithoutDiscount = $scope.invoice.total;
+        if($scope.invoice.discount !== ''){
+            $scope.invoice.total = $scope.invoice.totalPriceWithoutDiscount - ($scope.invoice.totalPriceWithoutDiscount * $scope.invoice.discount / 100);
+        }
+    }, true);
+    $scope.removeInvoiceItem = function(indexEl, productPrice){
+        $scope.invoicesInCart.splice(indexEl, 1);
+        $scope.compareAddItems.splice(indexEl, 1);
+        $scope.invoice.total = $scope.invoice.total - productPrice;
+        $scope.invoice.totalPriceWithoutDiscount = $scope.invoice.totalPriceWithoutDiscount - productPrice;
+    }
     $scope.submit = function(){
-        $modalInstance.close($scope.input);
+        invoice.addInvoice($scope.invoice)
+            .then(function(response){
+                angular.forEach($scope.invoicesInCart, function(product){
+                    var invoiceItem = new InvoiceItem();
+                    invoiceItem.product_id = product.id;
+                    invoiceItem.quantity = product.value;
+                    invoiceItem.invoice_id = response.id;
+                    $scope.invoiceItems.push(invoiceItem)
+                });
+                invoice.addInvoiceItems($scope.invoiceItems);
+                $modalInstance.close($scope.input);
+            }, function(){
+                $scope.invoice = {
+                    name: 'Failed',
+                    price: 'Failed',
+                }
+            });
     }
     $scope.close = function(){
-        $modalInstance.dismiss('close');
+        $modalInstance.close();
     }
     $scope.init();
-
 });
 

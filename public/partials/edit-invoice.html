@@ -1,6 +1,5 @@
 <div class="modal-header">
     <h4 class="modal-title">Edit invoice</h4>
-    {{invoiceEdit}}
 </div>
 <div class="modal-body">
     <form>
@@ -9,7 +8,7 @@
                 <div class="col-sm-6" style="width: 40%; margin: 0 30px; float: left;">
                     <label for="invoiceCustomer">Customer</label>
                     <select id="invoiceCustomer" class="form-control" ng-model="invoice.customer_id">
-                        <option selected="selected">{{invoiceEdit.customer_id}}</option>
+                        <option selected="selected">{{invoice.customer_id}}</option>
                         <option ng-repeat="customer in customersList track by $index" value="{{customer.name}}">{{customer.name}}
                         </option>
                     </select>
@@ -45,7 +44,7 @@
                 </table>
             </div>
         </div>
-        <div ng-show="invoicesInCart.length" style="width: 49%; float: left; margin-left: 30px;">
+        <div ng-show="invoice.ProductsInCart.length" style="width: 49%; float: left; margin-left: 30px;">
             <h4>Products in cart</h4>
             <div class="form-group max-h-130">
                 <table class="table table-bordered table-striped">
@@ -75,5 +74,5 @@
 </div>
 <div class="modal-footer">
     <button ng-click="close()" type="button" class="btn btn-default">Cancel</button>
-    <button ng-click="submit(invoice.id)" type="submit" class="btn btn-primary">Create</button>
+    <button ng-click="submit(invoice.id)" type="submit" class="btn btn-primary">Save</button>
 </div>
