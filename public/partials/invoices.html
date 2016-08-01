@@ -12,12 +12,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="invoice in invoicesList track by $index" ng-controller="getInvoiceItems">
+        <tr ng-repeat="invoice in invoicesList track by $index">
             <td>{{invoice.id}}</td>
             <td>{{invoice.customer_id}}</td>
             <td>{{invoice.discount}}</td>
             <td>
-                <ul style="list-style: inherit;">
+                <ul style="list-style: inherit;" ng-controller="getInvoiceItems">
                     <li ng-repeat="invoiceProduct in invoiceProductsName track by $index">
                         {{invoiceProduct}}
                     </li>
@@ -26,7 +26,8 @@
             <td>{{invoice.total | number:2}}</td>
             <td>
                 <button type="button" class="btn btn-danger" ng-click="delete(invoice.id)">x</button>
-                <button type="button" class="btn btn-default" ng-click="edit(invoice, invoiceProductsInCart)">edit</button>
+                <!--invoiceProductsInCart-->
+                <button type="button" class="btn btn-default" ng-click="edit(invoice)">edit</button>
             </td>
         </tr>
         </tbody>

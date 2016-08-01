@@ -134,7 +134,8 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
-    invoice.editInvoice = function(updateInvoice){
+    invoice.updateInvoice = function(updateInvoice){
+        console.log(updateInvoice)
         var defer = $q.defer();
         $http.put($rootScope.endPoint + '/api/invoices/' + updateInvoice.id, updateInvoice)
             .success(function(response){
@@ -147,6 +148,7 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
     }
     invoice.addInvoiceItems = function(invoiceItems){
         angular.forEach(invoiceItems, function(invoiceItem){
+            console.log(invoiceItem)
             var defer = $q.defer();
             $http.post($rootScope.endPoint + '/api/invoices/' + invoiceItem.invoice_id + '/items', invoiceItem)
                 .success(function(response){
@@ -158,22 +160,10 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             return defer.promise;
         })
     }
-    invoice.getInvoiceItems = function(invoice_id){
+    invoice.addInvoiceItem = function(invoiceItem){
+        console.log(invoiceItem)
         var defer = $q.defer();
-        $http.get($rootScope.endPoint + '/api/invoices/' + invoice_id + '/items')
-            .success(function(response){
-	            console.log(response)
-                invoice.invoiceProducts = response;
-                defer.resolve(response)
-            })
-            .error(function(err, status){
-                defer.reject(err);
-            })
-        return defer.promise;
-    }
-    invoice.editInvoiceItems = function(invoiceId, invoiceItemInCart){
-        var defer = $q.defer();
-        $http.put($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + invoiceItemInCart.id, invoiceItemInCart)
+        $http.post($rootScope.endPoint + '/api/invoices/' + invoiceItem.invoice_id + '/items', invoiceItem)
             .success(function(response){
                 defer.resolve(response)
             })
@@ -182,6 +172,21 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
             })
         return defer.promise;
     }
+    // invoice.updateInvoiceItems = function(invoiceItems){
+    //     angular.forEach(invoiceItems, function(invoiceItem){
+    //         var defer = $q.defer();
+    //         $http.put($rootScope.endPoint + '/api/invoices/' + invoiceItem.invoice_id + '/items/' + invoiceItem.product_id, invoiceItem)
+    //             .success(function(response){
+    //              invoice.updateinvoiceItems = response;
+    //                 console.log(response)
+    //                 defer.resolve(response)
+    //             })
+    //             .error(function(err, status){
+    //                 defer.reject(err);
+    //             })
+    //         return defer.promise;
+    //     })
+    // }
     invoice.deleteInvoiceItem = function(productId, invoiceId){
         var defer = $q.defer();
         $http.delete($rootScope.endPoint + '/api/invoices/' + invoiceId + '/items/' + productId)
@@ -194,9 +199,34 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
 
         return defer.promise;
     }
+    invoice.getInvoiceItems = function(invoice_id){
+        var defer = $q.defer();
+        $http.get($rootScope.endPoint + '/api/invoices/' + invoice_id + '/items')
+            .success(function(response){
+                invoice.invoiceItems = response;
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
+    }
     invoice.deleteInvoice = function(id){
         var defer = $q.defer();
         $http.delete($rootScope.endPoint + '/api/invoices/' + id)
+            .success(function(response){
+                defer.resolve(response)
+            })
+            .error(function(err, status){
+                defer.reject(err);
+            })
+        return defer.promise;
+    }
+    invoice.updateInvoiceItem = function(updateInvoiceItem){
+        console.log(updateInvoiceItem)
+        var defer = $q.defer();
+        $http.put($rootScope.endPoint + '/api/invoices/' + updateInvoiceItem.invoice_id + '/items/' + updateInvoiceItem.product_id, updateInvoiceItem)
+        // $http.put($rootScope.endPoint + '/api/invoices/' + updateInvoice.id, updateInvoice)
             .success(function(response){
                 defer.resolve(response)
             })

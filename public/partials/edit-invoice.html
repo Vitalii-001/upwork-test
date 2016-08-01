@@ -7,15 +7,15 @@
             <div class="row">
                 <div class="col-sm-6" style="width: 40%; margin: 0 30px; float: left;">
                     <label for="invoiceCustomer">Customer</label>
-                    <select id="invoiceCustomer" class="form-control" ng-model="invoice.customer_id">
-                        <option selected="selected">{{invoice.customer_id}}</option>
+                    <select id="invoiceCustomer" class="form-control" ng-model="invoiceToEdit.customer_id">
+                        <option selected="selected">{{invoiceToEdit.customer_id}}</option>
                         <option ng-repeat="customer in customersList track by $index" value="{{customer.name}}">{{customer.name}}
                         </option>
                     </select>
                 </div>
                 <div class="col-sm-6" style="width: 10%; margin: 0 30px; float: left;">
                     <label for="invoiceDiscount">Discount</label>
-                    <input ng-model="invoice.discount" type="text" class="form-control" id="invoiceDiscount"
+                    <input ng-model="invoiceToEdit.discount" type="text" class="form-control" id="invoiceDiscount"
                            placeholder="%">
                 </div>
             </div>
@@ -33,19 +33,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="product in productsList track by $index">
-                        <td>{{product.name}}</td>
-                        <td>{{product.price}}</td>
+                    <tr ng-repeat="invoiceItem in productsList track by $index">
+                        <td>{{invoiceItem.name}}</td>
+                        <td>{{invoiceItem.price}}</td>
                         <td>
-                            <button type="button" class="btn btn-success" ng-click="addInvoiceItem(product, invoice)">+</button>
+                            <button type="button" class="btn btn-success" ng-click="addInvoiceItem(invoiceItem, invoiceToEdit)">+</button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!--ng-show="invoice.ProductsInCart.length"-->
-        <div  style="width: 49%; float: left; margin-left: 30px;">
+        <div ng-show="invoiceProductsInCart.length" style="width: 49%; float: left; margin-left: 30px;">
             <h4>Products in cart</h4>
             <div class="form-group max-h-130">
                 <table class="table table-bordered table-striped">
@@ -58,22 +57,22 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="product in invoicesInCart track by $index">
+                    <tr ng-repeat="product in filterInvoiceProductsInCart track by $index">
                         <td>{{product.name}}</td>
                         <td>{{product.price}}</td>
-                        <td><input style="width: 40px;" type="number" ng-model="product.quantity" /></td>
+                        <td><input ng-controller="watchQuantity" style="width: 40px;" type="number" ng-model="product.quantity" /></td>
                         <td>
-                            <button type="button" class="btn btn-danger" ng-click="removeInvoiceItem($index, product.price, invoice.id, product.id)">x</button>
+                            <button type="button" class="btn btn-danger" ng-click="removeInvoiceItem(invoiceToEdit.id, product.id, $index, product.price)">x</button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="text-right" style="clear: both; padding: 10px 0; text-align: right;"><h2>{{invoice.total | number:2}} UAH</h2></div>
+        <div class="text-right" style="clear: both; padding: 10px 0; text-align: right;"><h2>{{invoiceToEdit.total | number:2}} UAH</h2></div>
     </form>
 </div>
 <div class="modal-footer">
     <button ng-click="close()" type="button" class="btn btn-default">Cancel</button>
-    <button ng-click="saveEdit(invoice, invoicesInCart)" type="submit" class="btn btn-primary">Save</button>
+    <button ng-click="saveEdit(invoiceToEdit.id, filterInvoiceProductsInCart)" type="submit" class="btn btn-primary">Save</button>
 </div>
