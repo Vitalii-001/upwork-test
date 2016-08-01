@@ -197,7 +197,8 @@ INVOISE.controller('getInvoiceItems', function($scope, invoice){
         var invoiceId = $scope.invoice.id;
         invoice.getInvoiceItems(invoiceId)
             .then(function(data){
-                $scope.invoiceProducts = invoice.invoiceItems;
+                $scope.invoiceProducts = data;
+
                 // $scope.invoiceProductsInCart = invoice.invoiceItems;
                 angular.forEach($scope.invoiceProducts, function(invoiceItem){
                     $scope.productsList.filter(function(item){
@@ -213,11 +214,12 @@ INVOISE.controller('getInvoiceItems', function($scope, invoice){
     var invoiceId = $scope.invoice.id;
     invoice.getInvoiceItems(invoiceId)
         .then(function(data){
-            $scope.invoiceProducts = invoice.invoiceItems;
+            $scope.invoiceProducts = data;
             // $scope.invoiceProductsInCart = invoice.invoiceItems;
             angular.forEach($scope.invoiceProducts, function(invoiceItem){
                 $scope.productsList.filter(function(item){
                     if(item.id === invoiceItem.product_id){
+            console.log(invoiceItem)
                         $scope.invoiceProductsName.push(item.name + " - " + invoiceItem.quantity);
                         return $scope.invoiceProductsName;
                     }
@@ -344,6 +346,9 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     $scope.invoiceToEdit.total = 0;
     $scope.invoiceItem = [];
     $scope.updateInvoiceItem = [];
+    $scope.changeQuanity = function(product){
+        invoice.changeProductCount(product);
+    };
     $scope.updateInvoiceItems = [];
     invoice.getAllProducts()
         .then(function(){
@@ -357,20 +362,14 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
     invoice.getInvoiceItems(invoiceToEdit.id)
         .then(function(data){
-            $scope.invoiceProductsInCart = invoice.invoiceItems;
-            console.log($scope.invoiceProductsInCart)
+            $scope.invoiceProductsInCart = data;
             var inputPriceArr = [];
             angular.forEach($scope.invoiceProductsInCart, function(invoiceProduct){
                 $scope.productsList.filter(function(item){
                     if(item.id === invoiceProduct.product_id){
                         invoiceProduct.price = item.price;
                         invoiceProduct.name = item.name;
-                        $scope.filterInvoiceProductsInCart.push({
-                            id: invoiceProduct.id,
-                            name: invoiceProduct.name,
-                            price: invoiceProduct.price,
-                            quantity: invoiceProduct.quantity
-                        });
+                        $scope.filterInvoiceProductsInCart.push(invoiceProduct);
                         inputPriceArr.push(invoiceProduct.price * invoiceProduct.quantity);
                         $scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
                             return sum + current;
@@ -407,8 +406,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         invoiceItem.quantity = product.quantity;
         invoiceItem.invoice_id = invoiceToEdit.id;
         $scope.invoiceItem = invoiceItem;
-        console.log($scope.invoiceItem)
-        invoice.addInvoiceItem($scope.invoiceItem);
+        invoice.addInvoiceItem($scope.invoiceItem)
     }
 
 
@@ -436,25 +434,10 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
             });
     }
     $scope.saveEdit = function(updateInvoiceId, invoicesInCart){
+        console.log($scope.invoiceToEdit)
         invoice.updateInvoice($scope.invoiceToEdit)
             .then(function(response){
                 $modalInstance.close();
-            });
-
-        console.log($scope.invoiceToEdit.id)
-        $scope.invoiceProductsName = [];
-        invoice.getInvoiceItems($scope.invoiceToEdit.id)
-            .then(function(data){
-                $scope.invoiceProducts = invoice.invoiceItems;
-                angular.forEach($scope.invoiceProducts, function(invoiceItem){
-                    $scope.productsList.filter(function(item){
-                        if(item.id === invoiceItem.product_id){
-                            $scope.invoiceProductsName.push(item.name + " - " + invoiceItem.quantity);
-                            invoiceToEdit.updateInvoiceItems = $scope.invoiceProductsName;
-                            return invoiceToEdit.updateInvoiceItems;
-                        }
-                    })
-                })
             });
 
     }
@@ -464,15 +447,17 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     $scope.init();
 });
 INVOISE.controller('watchQuantity', function($scope, invoice){
-    console.log($scope.product)
     $scope.$watch('product.quantity', function(newQ, oldQ){
         if(newQ !== oldQ){
             var updateInvoiceItem = $scope.product;
             updateInvoiceItem.product_id = $scope.product.id;
             updateInvoiceItem.quantity = newQ;
             updateInvoiceItem.invoice_id = $scope.invoiceToEdit.id;
-            console.log(updateInvoiceItem)
-            invoice.updateInvoiceItem(updateInvoiceItem);
+            invoice.updateInvoiceItem(updateInvoiceItem)
+                .then(function(){
+                    // $scope.product = invoice.updateItem;
+                    console.log($scope.product)
+                })
         }
     });
 
