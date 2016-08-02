@@ -219,7 +219,6 @@ INVOISE.controller('getInvoiceItems', function($scope, invoice){
             angular.forEach($scope.invoiceProducts, function(invoiceItem){
                 $scope.productsList.filter(function(item){
                     if(item.id === invoiceItem.product_id){
-            console.log(invoiceItem)
                         $scope.invoiceProductsName.push(item.name + " - " + invoiceItem.quantity);
                         return $scope.invoiceProductsName;
                     }
@@ -228,7 +227,7 @@ INVOISE.controller('getInvoiceItems', function($scope, invoice){
         });
 });
 
-INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance, $modal){
+INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance, getInvoiceData, $modal){
     $scope.init = function(){
         function Invoice(){
             this.customer_id = '';
@@ -238,7 +237,6 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
 
         $scope.invoice = new Invoice();
         $scope.invoicesInCart = []; //+
-        $scope.compareAddItems = [];
         $scope.invoiceItems = []; //+
         $scope.invoice.total = 0; //+
         $scope.invoice.totalPriceWithoutDiscount = 0; //+
@@ -274,14 +272,7 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
             })
     }
     $scope.addInvoiceItem = function(product){
-        if($scope.compareAddItems.indexOf(product.id) != -1){
-            $modal.open({
-                templateUrl: '/partials/already-exists.html',
-                controller: 'CreateInvoiceCtrl'
-            });
-            return false;
-        }
-        $scope.compareAddItems.push(product.id);
+        if (getInvoiceData.alreadyExistsOnCreate(product, $scope.invoicesInCart)) return false;
         $scope.invoicesInCart.push(product);
     }
     $scope.$watch('invoicesInCart', function(watchProducts){
@@ -299,7 +290,6 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
     }, true);
     $scope.removeInvoiceItem = function(indexEl, productPrice){
         $scope.invoicesInCart.splice(indexEl, 1);
-        $scope.compareAddItems.splice(indexEl, 1);
         $scope.invoice.total = $scope.invoice.total - productPrice;
         $scope.invoice.totalPriceWithoutDiscount = $scope.invoice.totalPriceWithoutDiscount - productPrice;
     }
@@ -314,7 +304,6 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
                     invoiceItem.invoice_id = response.id;
                     $scope.invoiceItems.push(invoiceItem)
                 });
-                console.log($scope.invoiceItems)
                 invoice.addInvoiceItems($scope.invoiceItems);
                 $modalInstance.close();
             }, function(){
@@ -340,8 +329,6 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
 
     $scope.invoiceToEdit = invoiceToEdit;
-    $scope.filterInvoiceProductsInCart = [];
-    $scope.compareAddItems = [];
     $scope.invoiceToEdit.totalPriceWithoutDiscount = 0;
     $scope.invoiceToEdit.total = 0;
     $scope.invoiceItem = [];
@@ -364,12 +351,12 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         .then(function(data){
 
             $scope.invoiceProductsInCart = getInvoiceData.getProductsInCart(data, $scope.productsList);
-            console.log($scope.invoiceProductsInCart)
+            $scope.invoiceToEdit.totalPriceWithoutDiscount = getInvoiceData.getWithoutDiscount(data, $scope.productsList, $scope.invoiceToEdit);
+            $scope.invoiceToEdit.total = getInvoiceData.getPrice(data, $scope.productsList, $scope.invoiceToEdit);
             // $scope.invoiceProductsInCart = data;
             // var inputPriceArr = [];
             // angular.forEach($scope.invoiceProductsInCart, function(invoiceProduct){
             //     $scope.productsList.filter(function(item){
-            //         console.log(invoiceProduct)
             //         if(item.id === invoiceProduct.product_id){
             //             invoiceProduct.price = item.price;
             //             invoiceProduct.name = item.name;
@@ -382,29 +369,21 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
             //             if($scope.invoiceToEdit.discount !== ''){
             //                 $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * $scope.invoiceToEdit.discount / 100);
             //             }
-            //             $scope.compareAddItems.push(invoiceProduct.product_id);
             //             return $scope.filterInvoiceProductsInCart;
             //         }
             //     })
             // });
         });
-    $scope.$watch('invoiceToEdit.discount', function(newV, oldV){
+    $scope.$watch('invoiceToEdit.discount', function(newV){
         $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * newV / 100);
         if(newV === ''){
             $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount;
         }
     });
     $scope.addInvoiceItem = function(product, invoiceToEdit){
+        if (getInvoiceData.alreadyExistsOnEdit(product, $scope.invoiceProductsInCart)) return false;
         var invoiceItem = new InvoiceItem();
         product.quantity = 1;
-        if($scope.compareAddItems.indexOf(product.id) != -1){
-            $modal.open({
-                templateUrl: '/partials/already-exists.html',
-                controller: 'CreateInvoiceCtrl'
-            });
-            return false;
-        }
-        $scope.compareAddItems.push(product.id);
         invoiceItem.product_id = product.id;
         invoiceItem.quantity = product.quantity;
         invoiceItem.invoice_id = invoiceToEdit.id;
@@ -416,7 +395,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
                     if(item.id === data.product_id){
                         data.price = item.price;
                         data.name = item.name;
-                        $scope.filterInvoiceProductsInCart.push(data);
+                        $scope.invoiceProductsInCart.push(data);
                         inputPriceArr.push(data.price * data.quantity);
                         $scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
                             return sum + current;
@@ -425,8 +404,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
                         if($scope.invoiceToEdit.discount !== ''){
                             $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * $scope.invoiceToEdit.discount / 100);
                         }
-                        $scope.compareAddItems.push(data.product_id);
-                        return $scope.filterInvoiceProductsInCart;
+                        return $scope.invoiceProductsInCart;
                     }
                 })
                 // $scope.filterInvoiceProductsInCart.push(data);
@@ -434,7 +412,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
 
 
-    $scope.$watch('filterInvoiceProductsInCart', function(newQ, oldQ){
+    $scope.$watch('invoiceProductsInCart', function(newQ, oldQ){
         var allPricesInElements = [];
         angular.forEach(newQ, function(val){
             allPricesInElements.push(val.quantity * val.price);
@@ -448,8 +426,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         }
     }, true);
     $scope.removeInvoiceItem = function(invoiceId, productId, indexEl, productPrice){
-        $scope.filterInvoiceProductsInCart.splice(indexEl, 1);
-        $scope.compareAddItems.splice(indexEl, 1);
+        $scope.invoiceProductsInCart.splice(indexEl, 1);
         $scope.invoiceToEdit.total = $scope.invoiceToEdit.total - productPrice;
         $scope.invoiceToEdit.totalPriceWithoutDiscount = $scope.invoiceToEdit.totalPriceWithoutDiscount - productPrice;
         invoice.deleteInvoiceItem(productId, invoiceId)
@@ -458,7 +435,6 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
             });
     }
     $scope.saveEdit = function(updateInvoiceId, invoicesInCart){
-        console.log($scope.invoiceToEdit)
         invoice.updateInvoice($scope.invoiceToEdit)
             .then(function(response){
                 $modalInstance.close();
@@ -469,21 +445,5 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         $modalInstance.close();
     }
     $scope.init();
-});
-INVOISE.controller('watchQuantity', function($scope, invoice){
-    $scope.$watch('product.quantity', function(newQ, oldQ){
-        if(newQ !== oldQ){
-            var updateInvoiceItem = $scope.product;
-            updateInvoiceItem.product_id = $scope.product.id;
-            updateInvoiceItem.quantity = newQ;
-            updateInvoiceItem.invoice_id = $scope.invoiceToEdit.id;
-            invoice.updateInvoiceItem(updateInvoiceItem)
-                .then(function(){
-                    // $scope.product = invoice.updateItem;
-                    console.log($scope.product)
-                })
-        }
-    });
-
 });
 

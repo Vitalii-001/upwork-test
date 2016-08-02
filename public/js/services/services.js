@@ -218,7 +218,6 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
         return defer.promise;
     }
     invoice.changeProductCount = function(product){
-        console.log(product);
         return $http.put($rootScope.endPoint + '/api/invoices/' + product.invoice_id + '/items/' + product.id, product);
     }
 });
