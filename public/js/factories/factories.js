@@ -13,38 +13,37 @@ INVOISE.factory('getInvoiceData', function($modal){
             });
             return filterInvoiceProductsInCart;
         },
-        getPrice: function(data, productsList, invoiceToEdit){
+        getPrice: function(data, scope){
             var inputPriceArr = [];
             angular.forEach(data, function(invoiceProduct){
-                productsList.filter(function(item){
+	            scope.productsList.filter(function(item){
                     if(item.id === invoiceProduct.product_id){
                         inputPriceArr.push(invoiceProduct.price * invoiceProduct.quantity);
-                        invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
+	                    scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
                             return sum + current;
                         }, 0);
-                        invoiceToEdit.total = invoiceToEdit.totalPriceWithoutDiscount;
-                        if(invoiceToEdit.discount !== ''){
-                            invoiceToEdit.total = invoiceToEdit.totalPriceWithoutDiscount - (invoiceToEdit.totalPriceWithoutDiscount * invoiceToEdit.discount / 100);
+	                    scope.invoiceToEdit.total = scope.invoiceToEdit.totalPriceWithoutDiscount;
+                        if(scope.invoiceToEdit.discount !== ''){
+	                        scope.invoiceToEdit.total = scope.invoiceToEdit.totalPriceWithoutDiscount - (scope.invoiceToEdit.totalPriceWithoutDiscount * scope.invoiceToEdit.discount / 100);
                         }
                     }
                 })
             });
-            return invoiceToEdit.total;
+            return scope.invoiceToEdit.total;
         },
-        getWithoutDiscount: function(data, productsList, invoiceToEdit){
+        getWithoutDiscount: function(data, scope){
             var inputPriceArr = [];
             angular.forEach(data, function(invoiceProduct){
-                productsList.filter(function(item){
+	            scope.productsList.filter(function(item){
                     if(item.id === invoiceProduct.product_id){
                         inputPriceArr.push(invoiceProduct.price * invoiceProduct.quantity);
-                        invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
+	                    scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
                             return sum + current;
                         }, 0);
                     }
                 })
             });
-            console.log(invoiceToEdit.totalPriceWithoutDiscount)
-            return invoiceToEdit.totalPriceWithoutDiscount;
+            return scope.invoiceToEdit.totalPriceWithoutDiscount;
         },
         alreadyExistsOnCreate: function(product, productsInCart){
             var compare = [];
@@ -71,6 +70,25 @@ INVOISE.factory('getInvoiceData', function($modal){
                 }
             });
             if (compare.length) return true;
-        }
+        },
+	    addInvoiceItem: function(scope, data){
+		    var inputPriceArr = [];
+		    scope.productsList.filter(function(item){
+			    if(item.id === data.product_id){
+				    data.price = item.price;
+				    data.name = item.name;
+				    scope.invoiceProductsInCart.push(data);
+				    inputPriceArr.push(data.price * data.quantity);
+				    scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
+					    return sum + current;
+				    }, 0);
+				    scope.invoiceToEdit.total = scope.invoiceToEdit.totalPriceWithoutDiscount;
+				    if(scope.invoiceToEdit.discount !== ''){
+					    scope.invoiceToEdit.total = scope.invoiceToEdit.totalPriceWithoutDiscount - (scope.invoiceToEdit.totalPriceWithoutDiscount * scope.invoiceToEdit.discount / 100);
+				    }
+			    }
+		    })
+		    return scope.invoiceProductsInCart;
+	    }
     }
 });

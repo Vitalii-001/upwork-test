@@ -227,7 +227,7 @@ INVOISE.controller('getInvoiceItems', function($scope, invoice){
         });
 });
 
-INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance, getInvoiceData, $modal){
+INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance, getInvoiceData){
     $scope.init = function(){
         function Invoice(){
             this.customer_id = '';
@@ -349,30 +349,9 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
     invoice.getInvoiceItems(invoiceToEdit.id)
         .then(function(data){
-
             $scope.invoiceProductsInCart = getInvoiceData.getProductsInCart(data, $scope.productsList);
-            $scope.invoiceToEdit.totalPriceWithoutDiscount = getInvoiceData.getWithoutDiscount(data, $scope.productsList, $scope.invoiceToEdit);
-            $scope.invoiceToEdit.total = getInvoiceData.getPrice(data, $scope.productsList, $scope.invoiceToEdit);
-            // $scope.invoiceProductsInCart = data;
-            // var inputPriceArr = [];
-            // angular.forEach($scope.invoiceProductsInCart, function(invoiceProduct){
-            //     $scope.productsList.filter(function(item){
-            //         if(item.id === invoiceProduct.product_id){
-            //             invoiceProduct.price = item.price;
-            //             invoiceProduct.name = item.name;
-            //             $scope.filterInvoiceProductsInCart.push(invoiceProduct);
-            //             inputPriceArr.push(invoiceProduct.price * invoiceProduct.quantity);
-            //             $scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
-            //                 return sum + current;
-            //             }, 0);
-            //             $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount;
-            //             if($scope.invoiceToEdit.discount !== ''){
-            //                 $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * $scope.invoiceToEdit.discount / 100);
-            //             }
-            //             return $scope.filterInvoiceProductsInCart;
-            //         }
-            //     })
-            // });
+            $scope.invoiceToEdit.totalPriceWithoutDiscount = getInvoiceData.getWithoutDiscount(data, $scope);
+            $scope.invoiceToEdit.total = getInvoiceData.getPrice(data, $scope);
         });
     $scope.$watch('invoiceToEdit.discount', function(newV){
         $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * newV / 100);
@@ -390,24 +369,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         $scope.invoiceItem = invoiceItem;
         invoice.addInvoiceItem($scope.invoiceItem)
             .then(function(data){
-                var inputPriceArr = [];
-                $scope.productsList.filter(function(item){
-                    if(item.id === data.product_id){
-                        data.price = item.price;
-                        data.name = item.name;
-                        $scope.invoiceProductsInCart.push(data);
-                        inputPriceArr.push(data.price * data.quantity);
-                        $scope.invoiceToEdit.totalPriceWithoutDiscount = inputPriceArr.reduce(function(sum, current){
-                            return sum + current;
-                        }, 0);
-                        $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount;
-                        if($scope.invoiceToEdit.discount !== ''){
-                            $scope.invoiceToEdit.total = $scope.invoiceToEdit.totalPriceWithoutDiscount - ($scope.invoiceToEdit.totalPriceWithoutDiscount * $scope.invoiceToEdit.discount / 100);
-                        }
-                        return $scope.invoiceProductsInCart;
-                    }
-                })
-                // $scope.filterInvoiceProductsInCart.push(data);
+                $scope.invoiceProductsInCart = getInvoiceData.addInvoiceItem($scope, data)
             })
     }
 
@@ -434,7 +396,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
 
             });
     }
-    $scope.saveEdit = function(updateInvoiceId, invoicesInCart){
+    $scope.saveEdit = function(){
         invoice.updateInvoice($scope.invoiceToEdit)
             .then(function(response){
                 $modalInstance.close();
