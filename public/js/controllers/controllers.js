@@ -190,40 +190,18 @@ INVOISE.controller('InvoicesCtrl', function($scope, invoice, $modal){
     $scope.init()
 });
 
-INVOISE.controller('getInvoiceItems', function($scope, invoice){
+INVOISE.controller('getInvoiceItems', function($scope, invoice, getInvoiceData){
     $scope.$on('getInvoiceItemsName', function(event, obj){
-
-        $scope.invoiceProductsName = [];
-        var invoiceId = $scope.invoice.id;
-        invoice.getInvoiceItems(invoiceId)
+        invoice.getInvoiceItems($scope.invoice.id)
             .then(function(data){
-                $scope.invoiceProducts = data;
-
-                // $scope.invoiceProductsInCart = invoice.invoiceItems;
-                angular.forEach($scope.invoiceProducts, function(invoiceItem){
-                    $scope.productsList.filter(function(item){
-                        if(item.id === invoiceItem.product_id){
-                            $scope.invoiceProductsName.push(item.name + " - " + invoiceItem.quantity);
-                            return $scope.invoiceProductsName;
-                        }
-                    })
-                })
+                $scope.invoiceProducts = getInvoiceData.getNameById($scope, data);
+                $scope.invoice.total = getInvoiceData.getInvoiceTotalPrice($scope, data);
             });
     });
-    $scope.invoiceProductsName = [];
-    var invoiceId = $scope.invoice.id;
-    invoice.getInvoiceItems(invoiceId)
+    invoice.getInvoiceItems($scope.invoice.id)
         .then(function(data){
-            $scope.invoiceProducts = data;
-            // $scope.invoiceProductsInCart = invoice.invoiceItems;
-            angular.forEach($scope.invoiceProducts, function(invoiceItem){
-                $scope.productsList.filter(function(item){
-                    if(item.id === invoiceItem.product_id){
-                        $scope.invoiceProductsName.push(item.name + " - " + invoiceItem.quantity);
-                        return $scope.invoiceProductsName;
-                    }
-                })
-            })
+            $scope.invoiceProducts = getInvoiceData.getNameById($scope, data);
+            $scope.invoice.total = getInvoiceData.getInvoiceTotalPrice($scope, data);
         });
 });
 
@@ -272,7 +250,7 @@ INVOISE.controller('CreateInvoiceCtrl', function($scope, invoice, $modalInstance
             })
     }
     $scope.addInvoiceItem = function(product){
-        if (getInvoiceData.alreadyExistsOnCreate(product, $scope.invoicesInCart)) return false;
+        if(getInvoiceData.alreadyExistsOnCreate(product, $scope.invoicesInCart)) return false;
         $scope.invoicesInCart.push(product);
     }
     $scope.$watch('invoicesInCart', function(watchProducts){
@@ -329,8 +307,8 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
 
     $scope.invoiceToEdit = invoiceToEdit;
-    $scope.invoiceToEdit.totalPriceWithoutDiscount = 0;
-    $scope.invoiceToEdit.total = 0;
+    // $scope.invoiceToEdit.totalPriceWithoutDiscount = 0;
+    // $scope.invoiceToEdit.total = 0;
     $scope.invoiceItem = [];
     $scope.updateInvoiceItem = [];
     $scope.changeQuanity = function(product){
@@ -360,7 +338,7 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
         }
     });
     $scope.addInvoiceItem = function(product, invoiceToEdit){
-        if (getInvoiceData.alreadyExistsOnEdit(product, $scope.invoiceProductsInCart)) return false;
+        if(getInvoiceData.alreadyExistsOnEdit(product, $scope.invoiceProductsInCart)) return false;
         var invoiceItem = new InvoiceItem();
         product.quantity = 1;
         invoiceItem.product_id = product.id;

@@ -18,7 +18,7 @@
             <td>{{invoice.discount}}</td>
             <td>
                 <ul style="list-style: inherit;" ng-controller="getInvoiceItems">
-                    <li ng-repeat="invoiceProduct in invoiceProductsName track by $index">
+                    <li ng-repeat="invoiceProduct in invoiceProducts track by $index">
                         {{invoiceProduct}}
                     </li>
                 </ul>

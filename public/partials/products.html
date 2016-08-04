@@ -4,6 +4,7 @@
         <thead>
         <tr>
             <th>Name</th>
+            <th>Description</th>
             <th>Price</th>
             <th>Remove</th>
         </tr>
@@ -11,6 +12,7 @@
         <tbody>
         <tr ng-repeat="product in productsList track by $index">
             <td>{{product.name}}</td>
+            <td>{{product.description}}</td>
             <td>{{product.price}}</td>
             <td><button type="button" class="btn btn-danger" ng-click="delete(product.id)">x</button></td>
         </tr>

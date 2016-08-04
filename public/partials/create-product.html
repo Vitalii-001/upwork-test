@@ -3,13 +3,20 @@
 </div>
 <div class="modal-body">
     <form>
-        <div class="form-group">
-            <label for="productName">Name</label>
-            <input ng-model="product.name" type="text" class="form-control" id="productName" placeholder="name">
+        <div class="col-sm-6" style="width: 43%; padding: 0 15px; float: left;">
+            <div class="form-group">
+                <label for="productName">Name</label>
+                <input ng-model="product.name" type="text" class="form-control" id="productName" placeholder="name">
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Price</label>
+                <input ng-model="product.price" type="text" class="form-control" id="productPrice"
+                       placeholder="price">
+            </div>
         </div>
-        <div class="form-group">
-            <label for="productPrice">Price</label>
-            <input ng-model="product.price" type="text" class="form-control" id="productPrice" placeholder="price">
+        <div class="col-sm-6" style="width: 43%; padding: 0 15px; float: left;">
+            <label for="productDescription">Description</label>
+            <textarea id="productDescription" rows="4" ng-model="product.description"></textarea>
         </div>
     </form>
 </div>
