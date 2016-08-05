@@ -307,8 +307,6 @@ INVOISE.controller('EditInvoiceCtrl', function($scope, invoice, $modalInstance, 
     }
 
     $scope.invoiceToEdit = invoiceToEdit;
-    // $scope.invoiceToEdit.totalPriceWithoutDiscount = 0;
-    // $scope.invoiceToEdit.total = 0;
     $scope.invoiceItem = [];
     $scope.updateInvoiceItem = [];
     $scope.changeQuanity = function(product){
