@@ -1,6 +1,7 @@
 INVOISE.factory('getInvoiceData', function($modal){
     return {
         getNameById: function(scope, data){
+            console.log(data)
             var invoiceProductsName = [];
             angular.forEach(data, function(invoiceItem){
                 scope.productsList.filter(function(item){

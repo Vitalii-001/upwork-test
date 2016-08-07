@@ -56,6 +56,7 @@ INVOISE.service('product', function products($http, $q, $rootScope){
         return defer.promise;
     }
     product.addProduct = function(product){
+                console.log(product)
         var defer = $q.defer();
         $http.post($rootScope.endPoint + '/api/products', product)
             .success(function(response){
@@ -221,3 +222,4 @@ INVOISE.service('invoice', function products($http, $q, $rootScope){
         return $http.put($rootScope.endPoint + '/api/invoices/' + product.invoice_id + '/items/' + product.id, product);
     }
 });
+
