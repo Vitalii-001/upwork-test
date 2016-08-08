@@ -107,16 +107,15 @@ INVOISE.controller('CreateProductCtrl', function($scope, product, $modalInstance
             this.name = '';
             this.price = '';
             this.description = '';
-            this.myFile = '';
+            this.photo = '';
         }
 
         $scope.product = new Product();
-        $scope.product.myFile = $scope.myFile;
     }
     $scope.submit = function(){
+        console.log($scope.product.photo)
         product.addProduct($scope.product)
             .then(function(){
-        console.log($scope.fileModel)
                 $modalInstance.close();
             }, function(){
                 $scope.product = {

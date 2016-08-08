@@ -2,7 +2,6 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     http = require('http'),
     path = require('path'),
-    router = require('node-router');
 Sequelize = require('sequelize'),
     _ = require('lodash');
 
@@ -268,10 +267,4 @@ app.get('*', function(req, res){
 // Starting express server
 http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
-});
-
-var router = router();
-var route = router.push;
-route('/products', function(){
-    alert();
 });
